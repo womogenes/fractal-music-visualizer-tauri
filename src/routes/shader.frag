@@ -18,7 +18,7 @@ vec2 mul_c(vec2 a, vec2 b) {
 
 float julia(vec2 z, vec2 c) {
   // Return 0 if in Julia set, otherwise length
-  float gamma = 0.5;
+  float gamma = 0.9;
 
   for (int i = 0; i < 100; i++) {
     z = mul_c(z, z) + c;
@@ -28,8 +28,9 @@ float julia(vec2 z, vec2 c) {
     }
   }
 
-  // return 1. - length(z);
-  return 0.0;
+  return 0.2;
+  return 1. - length(z);
+  // return 0.0;
 }
 
 float pal(float t) {
@@ -70,9 +71,10 @@ void main(void) {
   vec2 z = xy * zoom;
   float res = julia(z, c);
 
-  vec3 color = cmap(res);
+  vec3 color;
+  // color = cmap(res);
 
-  color = vec3(res, res, res);
+  color = vec3(res, res, res) * vec3(r, g, b);
   gl_FragColor = vec4(color, 1.0);
 
   // gl_FragColor = vec4(res, res, res, 1.0);
