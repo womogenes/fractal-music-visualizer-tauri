@@ -5,31 +5,34 @@
   import GlslCanvas from 'glslCanvas';
 
   let canvasEl: any;
+  let angle = Math.PI * 0.25;
+  let resolution = '2048x1024';
+
+  let gamma = 0.9;
+  let returnValue = 0.2;
+  let scaleValue = 0.1;
+  let offsetValue = 0.0;
+
+  let r = 1.0;
+  let g = 0.3;
+  let b = 0.3;
+  let zoom = 4.0;
+
+  let sandbox: any;
+
+  function handleResize() {
+    if (!canvasEl) return;
+    const [width, height] = resolution.split('x').map(Number);
+    canvasEl.width = width;
+    canvasEl.height = height;
+  }
 
   onMount(() => {
     if (!canvasEl) console.log('oopsie');
 
-    const handleResize = () => {
-      // const dpr = window.devicePixelRatio || 1;
-      const dpr = 2.0;
-
-      // const width = window.innerWidth * dpr;
-      // const height = window.innerHeight * dpr;
-
-      const width = 2048;
-      const height = 1024;
-      canvasEl.width = width;
-      canvasEl.height = height;
-
-      console.log(width, height);
-
-      console.log(width, height);
-    };
-
-    window.onresize = handleResize;
     handleResize();
 
-    const sandbox = new GlslCanvas(canvasEl, { preserveDrawingBuffer: true });
+    sandbox = new GlslCanvas(canvasEl, { preserveDrawingBuffer: true });
     sandbox.load(fragShaderSource);
 
     sandbox.setUniform('zoom', 4.0);
@@ -42,36 +45,88 @@
     };
 
     const render = () => {
-      // const a = performance.now() * 0.001 + Math.PI * 0.75;
-      // const a = (mouseX / window.innerWidth) * Math.PI * 2;
-
-      // const a = Math.PI * 1.0 + Math.sin(performance.now() * 0.0005) * 1.0;
-
-      const a = Math.PI * 0.25;
-      const zoom = 1;
-
-      const c = [0.7885 * Math.cos(a), 0.7885 * Math.sin(a)];
-
-      // let c = [-0.835, -0.2321];
-      // c[0] += Math.cos(a) * 0.1;
-      // c[1] += Math.sin(a) * 0.1;
+      const c = [0.7885 * Math.cos(angle), 0.7885 * Math.sin(angle)];
 
       sandbox.setUniform('c', c[0], c[1]);
-      const rgb = [1.0, 0.3, 0.3];
-      const s = 1;
-
-      sandbox.setUniform('r', rgb[0] * s);
-      sandbox.setUniform('g', rgb[1] * s);
-      sandbox.setUniform('b', rgb[2] * s);
-      sandbox.setUniform('zoom', 10.0);
+      sandbox.setUniform('r', r);
+      sandbox.setUniform('g', g);
+      sandbox.setUniform('b', b);
+      sandbox.setUniform('zoom', zoom);
+      sandbox.setUniform('gamma', gamma);
+      sandbox.setUniform('returnValue', returnValue);
+      sandbox.setUniform('scaleValue', scaleValue);
+      sandbox.setUniform('offsetValue', offsetValue);
       requestAnimationFrame(render);
     };
     render();
   });
 </script>
 
-<main class="flex">
-  <canvas class="glslCanvas" bind:this={canvasEl}></canvas>
+<main class="flex gap-6 p-6">
+  <canvas class="glslCanvas w-full max-w-xl" bind:this={canvasEl}></canvas>
+  <div class="flex flex-col">
+    <label>
+      Resolution:
+      <select bind:value={resolution} on:change={handleResize}>
+        <option value="1024x1024">1024x1024</option>
+        <option value="2048x1024">2048x1024</option>
+      </select>
+    </label>
+    <label>
+      Angle: {angle.toFixed(2)}
+      <input
+        type="range"
+        bind:value={angle}
+        min="0"
+        max={Math.PI * 2}
+        step="0.01"
+      />
+    </label>
+    <label>
+      R: {r.toFixed(2)}
+      <input type="range" bind:value={r} min="0" max="1" step="0.01" />
+    </label>
+    <label>
+      G: {g.toFixed(2)}
+      <input type="range" bind:value={g} min="0" max="1" step="0.01" />
+    </label>
+    <label>
+      B: {b.toFixed(2)}
+      <input type="range" bind:value={b} min="0" max="1" step="0.01" />
+    </label>
+    <label>
+      Zoom: {zoom.toFixed(2)}
+      <input type="range" bind:value={zoom} min="0" max="20" step="0.1" />
+    </label>
+    <label>
+      Gamma: {gamma.toFixed(2)}
+      <input type="range" bind:value={gamma} min="0" max="2" step="0.01" />
+    </label>
+    <label>
+      Zero Value: {returnValue.toFixed(2)}
+      <input
+        type="range"
+        bind:value={returnValue}
+        min="0"
+        max="1"
+        step="0.01"
+      />
+    </label>
+    <label>
+      Scale Value: {scaleValue.toFixed(2)}
+      <input type="range" bind:value={scaleValue} min="0" max="1" step="0.01" />
+    </label>
+    <label>
+      Offset Value: {offsetValue.toFixed(2)}
+      <input
+        type="range"
+        bind:value={offsetValue}
+        min="-5"
+        max="5"
+        step="0.1"
+      />
+    </label>
+  </div>
 </main>
 
 <style>

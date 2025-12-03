@@ -10,6 +10,10 @@ uniform float g;
 uniform float b;
 uniform vec2 c;
 uniform float zoom;
+uniform float gamma;
+uniform float returnValue;
+uniform float scaleValue;
+uniform float offsetValue;
 
 vec2 mul_c(vec2 a, vec2 b) {
   // Complex multiplication
@@ -18,19 +22,16 @@ vec2 mul_c(vec2 a, vec2 b) {
 
 float julia(vec2 z, vec2 c) {
   // Return 0 if in Julia set, otherwise length
-  float gamma = 0.9;
 
   for (int i = 0; i < 100; i++) {
     z = mul_c(z, z) + c;
     if (length(z) > 100.0) {
-      float nu = float(i) + 0.0 - log(log(length(z))) / log(2.0);
-      return pow(nu, gamma) * 0.1;
+      float nu = float(i) + offsetValue - log(log(length(z))) / log(2.0);
+      return pow(nu, gamma) * scaleValue;
     }
   }
 
-  return 0.2;
-  return 1. - length(z);
-  // return 0.0;
+  return returnValue;
 }
 
 float pal(float t) {
